@@ -1,245 +1,255 @@
-# 🛒 E-commerce Customer Churn Analysis
+# E-commerce Customer Churn Analysis
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)
-![Hadoop](https://img.shields.io/badge/Hadoop-3.4.3-yellow?logo=apache)
-![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker)
+![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?logo=pandas)
+![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML-F7931E?logo=scikit-learn)
 ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
-This project analyzes an E-commerce Customer Churn dataset containing **50,000 customer records** and **25 features**. The goal is to explore behavioral patterns that lead to customer churn using Big Data tools including **Docker**, **Hadoop (HDFS + MapReduce)**, and **Python**.
+This project analyzes an **E-commerce Customer Churn dataset** containing **50,000 customer records** with **25 features** to predict and understand customer churn behavior. The analysis includes:
+
+- **Data Cleaning & Preprocessing** – handling missing values, duplicates, and type conversions
+- **Exploratory Data Analysis (EDA)** – visualizing churn patterns and customer demographics
+- **Machine Learning Models** – training Logistic Regression, Random Forest, and Gradient Boosting classifiers
+- **Model Evaluation** – comparing performance using cross-validation and classification metrics
+- **Insights & Recommendations** – identifying key churn drivers
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-```
-📦 ecommerce-churn-bigdata/
-├── 📂 data/
-│   ├── ecommerce_customer_churn_dataset.csv   # Original dataset
-│   └── churn_cleaned.csv                      # Cleaned dataset
-├── 📂 notebooks/
-│   └── churn_analysis.ipynb                   # Full Jupyter Notebook
-├── 📂 hadoop/
-│   ├── mapper.py                              # MapReduce Mapper
-│   └── reducer.py                             # MapReduce Reducer
-├── 📂 charts/
-│   ├── bar_chart.png                          # Churn by Country
-│   ├── pie_chart.png                          # Churn Distribution
-│   ├── line_chart.png                         # Lifetime Value by Age
-│   └── histogram.png                          # Session Duration
-├── 📂 report/
-│   └── Big_Data_Project_Report.md             # Full Project Report
+```text
+e-commerce_customer_churn/
+├── ecommerce_customer_churn_dataset.csv   # Raw dataset (50,000 customers)
+├── churn_cleaned.csv                       # Cleaned & processed data
+├── customer_churn.ipynb                    # Main analysis notebook
+├── model_comparison.png                    # ML model performance comparison
+├── feature_importance.png                  # Feature importance analysis
+├── kfold_boxplot.png                       # Cross-validation results
+├── mapreduce_chart.png                     # Additional performance metrics
+├── customer_churn_results.png              # Results summary
 └── README.md
 ```
 
 ---
 
-## 🗂️ Dataset
+## Dataset Overview
 
-| Field | Details |
+| Attribute | Details |
 |---|---|
-| Source | [Kaggle — E-commerce Customer Churn Dataset](https://www.kaggle.com) |
-| Format | CSV |
-| Records | 50,000 customers |
-| Features | 25 columns |
-| Target | `Churned` (1 = Left, 0 = Stayed) |
-| Churn Rate | ~29% |
+| **Source** | E-commerce Customer Churn Dataset |
+| **Format** | CSV |
+| **Size** | 50,000 customer records |
+| **Features** | 25 columns |
+| **Target Variable** | `Churned` (1 = churned, 0 = retained) |
+| **Churn Rate** | ~29% |
 
-### Key Columns
+### Key Features
+
 | Column | Description |
 |---|---|
 | `Age` | Customer age |
-| `Country` / `City` | Location |
-| `Total_Purchases` | Number of purchases |
-| `Cart_Abandonment_Rate` | % of carts abandoned |
-| `Lifetime_Value` | Total value to business ($) |
-| `Session_Duration_Avg` | Avg session duration (min) |
-| `Churned` | **Target variable** |
+| `Gender` | Customer gender |
+| `Country` / `City` | Geographic location |
+| `Total_Purchases` | Number of purchases made |
+| `Cart_Abandonment_Rate` | % of abandoned shopping carts |
+| `Lifetime_Value` | Total value to business |
+| `Session_Duration_Avg` | Average browsing session (minutes) |
+| `Days_Since_Last_Purchase` | Recency metric |
+| `Churned` | Target (churn status) |
 
 ---
 
-## ⚙️ Environment Setup
+## Data Processing Pipeline
 
-### Requirements
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- No local Python or Hadoop installation needed — everything runs inside Docker
+The analysis includes a comprehensive data cleaning workflow:
 
-### Docker Containers Used
-
-| Container | Image | Purpose |
-|---|---|---|
-| `hadoop-container` | `farberg/apache-hadoop` | Hadoop 3.4.3 (HDFS + MapReduce) |
-| `jupyter-nb` | `continuumio/anaconda3` | Jupyter Notebook + Python |
-
-### Pull & Run Containers
-
-```bash
-# 1. Hadoop Container
-docker pull farberg/apache-hadoop
-docker run -it --name hadoop-container farberg/apache-hadoop bash
-
-# 2. Jupyter Container
-docker pull continuumio/anaconda3
-docker run -p 8888:8888 \
-  -v "C:/Users/<YourName>/Downloads:/home/jovyan/work" \
-  --name jupyter-nb \
-  continuumio/anaconda3 \
-  jupyter notebook --ip=0.0.0.0 --allow-root --no-browser
-```
-
-Then open Jupyter at: `http://127.0.0.1:8888`
+1. **Load Raw Data** – Read 50,000 customer records
+2. **Remove Duplicates** – Identify and drop duplicate rows
+3. **Handle Missing Values** – Fill numeric columns with median values
+4. **Standardize Text Fields** – Clean gender, country, and city names
+5. **Type Conversion** – Ensure correct data types
+6. **Export Clean Data** – Save processed data as `churn_cleaned.csv`
 
 ---
 
-## 🧹 Part 1: Data Preprocessing
+## Machine Learning Models
 
-All preprocessing done inside `churn_analysis.ipynb`
+The project trains and evaluates **3 classification models** using 5-fold Stratified Cross-Validation:
 
-| Step | Action | Result |
-|---|---|---|
-| Load | Read CSV with pandas | 50,000 rows × 25 cols |
-| Understand | `df.info()` + `df.describe()` | 23 numeric, 2 string cols |
-| Duplicates | `drop_duplicates()` | 0 duplicates found ✅ |
-| Missing Values | Fill with column median | 12+ columns fixed ✅ |
-| Inconsistencies | Standardize Gender, Country | Text cleaned ✅ |
-| Data Types | Convert Age, Purchases to int | Types fixed ✅ |
+### Models Trained
 
-```python
-# Quick preprocessing snippet
-import pandas as pd
-import numpy as np
+| Model | Description |
+|---|---|
+| **Logistic Regression** | Baseline linear classifier with scaling |
+| **Random Forest** | Ensemble model for feature importance |
+| **Gradient Boosting** | Advanced boosting for optimal performance |
 
-df = pd.read_csv('work/ecommerce_customer_churn_dataset.csv')
-df.drop_duplicates(inplace=True)
+### Evaluation Metrics
 
-numeric_cols = df.select_dtypes(include=np.number).columns
-df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
-
-df['Gender'] = df['Gender'].str.strip().str.capitalize()
-df['Country'] = df['Country'].str.strip().str.title()
-
-df['Age'] = df['Age'].astype(int)
-df['Total_Purchases'] = df['Total_Purchases'].astype(int)
-df['Churned'] = df['Churned'].astype(int)
-
-df.to_csv('work/churn_cleaned.csv', index=False)
-```
+- **Accuracy** – Overall prediction correctness
+- **ROC-AUC** – Trade-off between true & false positive rates
+- **F1-Score** – Harmonic mean of precision and recall
+- **Classification Report** – Precision, recall, and support per class
 
 ---
 
-## 🐘 Part 2: Hadoop — HDFS + MapReduce
+## Results & Visualizations
 
-### HDFS Storage
+The notebook generates several visualizations and outputs:
 
-```bash
-# Copy CSV into Hadoop container
-docker cp "ecommerce_customer_churn_dataset.csv" hadoop-container:/root/churn.csv
+| File | Content |
+|---|---|
+| `model_comparison.png` | Performance metrics across all 3 models |
+| `feature_importance.png` | Top features driving churn predictions |
+| `kfold_boxplot.png` | Cross-validation score distributions |
+| `customer_churn_results.png` | Summary of results and insights |
 
-# Upload to HDFS
-hdfs dfs -mkdir -p /user/churn
-hdfs dfs -put /root/churn.csv /user/churn/
-hdfs dfs -ls /user/churn/
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.7+
+- Jupyter Notebook
+- Required packages (see below)
+
+### Installation & Execution
+
+1. **Clone/download** the repository
+2. **Install dependencies**:
+   ```bash
+   pip install pandas numpy scikit-learn matplotlib seaborn jupyter
+   ```
+
+3. **Open Jupyter Notebook**:
+   ```bash
+   jupyter notebook customer_churn.ipynb
+   ```
+
+4. **Run cells sequentially** from top to bottom
+
+### What Happens When You Run It
+
+- Loads the raw dataset
+- Cleans and processes the data
+- Saves the cleaned data to `churn_cleaned.csv`
+- Trains 3 ML models with cross-validation
+- Generates visualizations and model reports
+- Displays classification metrics and feature importance
+
+---
+
+## Key Dependencies
+
 ```
-
-**Result:**
-```
-Found 1 items
--rw-r--r--  1 root root  6112281  2026-05-07  /user/churn/churn.csv
-```
-
-### MapReduce — Churn Count by Country
-
-**mapper.py** — Emits `(country, 1)` for each churned customer
-```python
-#!/usr/bin/env python3
-import sys
-
-for line in sys.stdin:
-    line = line.strip()
-    if line.startswith('Age'):
-        continue
-    cols = line.split(',')
-    try:
-        country = cols[2]
-        churned = cols[23]
-        if churned == '1':
-            print(f"{country}\t1")
-    except:
-        pass
-```
-
-**reducer.py** — Sums churn count per country
-```python
-#!/usr/bin/env python3
-import sys
-
-current_country = None
-current_count = 0
-
-for line in sys.stdin:
-    line = line.strip()
-    country, count = line.split('\t')
-    count = int(count)
-    if current_country == country:
-        current_count += count
-    else:
-        if current_country:
-            print(f"{current_country}\t{current_count}")
-        current_country = country
-        current_count = count
-
-if current_country:
-    print(f"{current_country}\t{current_count}")
-```
-
-**Run the job:**
-```bash
-hadoop jar /opt/hadoop-3.4.3/share/hadoop/tools/lib/hadoop-streaming-*.jar \
-  -input /user/churn/churn.csv \
-  -output /user/churn/output \
-  -mapper /root/mapper.py \
-  -reducer /root/reducer.py
-
-# View results
-hdfs dfs -cat /user/churn/output/part-00000
+pandas           # Data manipulation
+numpy            # Numerical computing
+scikit-learn     # Machine learning models & metrics
+matplotlib       # Static plotting
+seaborn          # Statistical visualizations
+jupyter          # Interactive notebooks
+xgboost          # Gradient boosting library
+joblib           # Model serialization
 ```
 
 ---
 
-## 📊 Part 3: Visualizations
+## Workflow Overview
 
-Four charts generated using Matplotlib & Seaborn:
+### Step 1: Data Cleaning
+The notebook loads the raw dataset and performs:
+- Duplicate removal
+- Missing value imputation (median for numeric columns)
+- Text standardization (Gender, Country, City)
+- Type conversion for modeling compatibility
 
-| Chart | Type | Insight |
-|---|---|---|
-| `bar_chart.png` | Bar Chart | Top 8 countries by churn count |
-| `pie_chart.png` | Pie Chart | 71% stayed vs 29% churned |
-| `line_chart.png` | Line Chart | Lifetime value increases with age |
-| `histogram.png` | Histogram | Session duration distribution |
+### Step 2: Exploratory Data Analysis
+Visualizations reveal:
+- Churn distribution across customer segments
+- Relationship between features and churn
+- Customer demographics and behavior patterns
+- Lifetime value and engagement trends
+
+### Step 3: Model Training & Evaluation
+Using 5-fold Stratified Cross-Validation:
+- **Logistic Regression** – Fast baseline with scaling
+- **Random Forest** – Feature importance insights
+- **Gradient Boosting** – Best predictive performance
+
+Each model is evaluated on Accuracy, ROC-AUC, and F1-Score.
 
 ---
 
-## 💡 Key Insights
+## Key Insights
 
-- **29% churn rate** — nearly 1 in 3 customers left the platform
-- **High cart abandonment** is strongly linked to churn
-- **Older customers** have higher lifetime value and lower churn tendency
-- **Short session durations** indicate disengagement and higher churn risk
-- **Geographic patterns** — certain countries show significantly higher churn
+- **Churn Rate**: ~29% of customers churn (1 in 3 customers leave)
+- **Cart Abandonment**: Strong correlation with churn behavior
+- **Session Duration**: Higher engagement = lower churn risk
+- **Age Factor**: Older customers often show higher lifetime value
+- **Geographic Patterns**: Churn rates vary by country/region
+- **Feature Importance**: Certain features are strong churn predictors
 
 ---
 
-## ⚠️ Challenges & Solutions
+## Challenges & Solutions
 
 | Challenge | Solution |
 |---|---|
-| Old Hadoop images incompatible with Docker | Used `farberg/apache-hadoop` instead |
-| `scipy-notebook` read-only filesystem error | Switched to `continuumio/anaconda3` |
-| Port 8888 already in use | Used port `8889` as alternative |
-| `python3` missing in Hadoop container | Ran `apt-get install -y python3` |
-| Missing values in 12+ columns | Applied median imputation |
+| Missing values in multiple columns | Median imputation for numeric columns |
+| Inconsistent text formatting | `.str.strip()` and `.str.capitalize()` for standardization |
+| Imbalanced churn distribution | Stratified K-Fold cross-validation |
+| Data leakage in preprocessing | Pipeline-based scaling within CV folds |
 
 ---
+
+## Files in This Repository
+
+- **`ecommerce_customer_churn_dataset.csv`** – Original raw dataset (50,000 records)
+- **`churn_cleaned.csv`** – Cleaned and preprocessed dataset
+- **`customer_churn.ipynb`** – Main Jupyter notebook with full analysis
+- **`model_comparison.png`** – ML model performance visualization
+- **`feature_importance.png`** – Feature importance analysis
+- **`kfold_boxplot.png`** – Cross-validation results
+- **`customer_churn_results.png`** – Final results summary
+- **`README.md`** – This file
+
+---
+
+## Future Enhancements
+
+Possible next steps:
+- Feature engineering (create new derived features)
+- Hyperparameter tuning for better model performance
+- Deploy model as REST API
+- Real-time churn prediction pipeline
+- Customer retention recommendations based on risk scores
+
+---
+
+## Author & License
+
+Created as part of e-commerce analytics project.
+Feel free to fork, modify, and use this project for learning and analysis purposes.
+
+---
+
+**Last Updated**: May 2026
+
+1. Start the container with `docker compose up --build`.
+2. Open Jupyter at `http://127.0.0.1:8888`.
+3. Run [`notebook/customer_churn.ipynb`](./notebook/customer_churn.ipynb).
+4. Review the cleaned dataset in [`data/churn_cleaned.csv`](./data/churn_cleaned.csv).
+
+---
+
+## Future Improvements
+
+- add saved chart outputs to the repository
+- add Hadoop mapper and reducer scripts under a dedicated `hadoop/` folder
+- build a churn prediction model and compare algorithms
+- create a dashboard for interactive exploration
