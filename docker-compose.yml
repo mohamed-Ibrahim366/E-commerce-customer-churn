@@ -1,0 +1,14 @@
+services:
+  churn-notebook:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: customer_churn
+    ports:
+      - "8888:8888"         
+    volumes:
+      - ./data:/app/data     
+      - ./work:/app/work     
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
