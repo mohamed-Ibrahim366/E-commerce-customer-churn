@@ -26,6 +26,7 @@ e-commerce_customer_churn/
 ├── ecommerce_customer_churn_dataset.csv   # Raw dataset (50,000 customers)
 ├── churn_cleaned.csv                       # Cleaned & processed data
 ├── customer_churn.ipynb                    # Main analysis notebook
+├── docker-compose.yml                      #put the project in docker container
 ├── model_comparison.png                    # ML model performance comparison
 ├── feature_importance.png                  # Feature importance analysis
 ├── kfold_boxplot.png                       # Cross-validation results
